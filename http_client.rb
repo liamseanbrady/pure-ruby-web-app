@@ -1,7 +1,7 @@
 require 'socket'
 
 client_socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, Socket::IPPROTO_TCP)
-client_address = Socket.pack_sockaddr_in(12000, '192.168.0.87')
+client_address = Socket.pack_sockaddr_in(12000, '127.0.0.1')
 client_socket.bind(client_address)
 
 server_address = Socket.pack_sockaddr_in(2000, '127.0.0.1')
