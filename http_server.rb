@@ -13,11 +13,17 @@ loop do
   puts "Opening a connection for request."
   while message_line = new_socket.gets
     first_header_line ||= message_line
+    puts first_header_line
     puts message_line
     break if message_line.chomp == ''
   end
 
-  document_path = "documents/#{first_header_line.split(' ')[1]}"
+  file_name = first_header_line.split(' ')[1]
+  first_header_line.clear
+
+  file_name = file_name == '/favicon.ico' ? '/hello_world.html' : file_name 
+
+  document_path = "documents#{file_name}"
   content = File.open(document_path, 'r') { |f| f.read }
 
   puts "Sending response..."
