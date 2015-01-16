@@ -13,26 +13,25 @@ loop do
   puts "Opening a connection for request."
   while message_line = new_socket.gets
     first_header_line ||= message_line
-    puts first_header_line
     puts message_line
-    break if message_line.chomp == ''
+    break if message_line.chomp.empty?
   end
 
   file_name = first_header_line.split(' ')[1]
   first_header_line.clear
 
-  file_name = file_name == '/favicon.ico' ? '/hello_world.html' : file_name 
+  if file_name != '/favicon.ico'
+    document_path = "documents#{file_name}"
+    content = File.open(document_path, 'r') { |f| f.read }
 
-  document_path = "documents#{file_name}"
-  content = File.open(document_path, 'r') { |f| f.read }
-
-  puts "Sending response..."
-  new_socket.puts "HTTP/1.1 200 OK"
-  new_socket.puts "Date: #{Time.now.ctime}"
-  new_socket.puts "Content-Type: text/html"
-  new_socket.puts "Server: My HTTP Server"
-  new_socket.puts "\r\n"
-  new_socket.puts content
-  new_socket.close
-  puts "Response sent and connection closed."
+    puts "Sending response..."
+    new_socket.puts "HTTP/1.1 200 OK"
+    new_socket.puts "Date: #{Time.now.ctime}"
+    new_socket.puts "Content-Type: text/html"
+    new_socket.puts "Server: My HTTP Server"
+    new_socket.puts "\r\n"
+    new_socket.puts content
+    new_socket.close
+    puts "Response sent and connection closed."
+  end
 end
