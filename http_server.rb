@@ -12,9 +12,13 @@ loop do
   new_socket, _ = server_socket.accept
   puts "Opening a connection for request."
   while message_line = new_socket.gets
+    first_header_line ||= message_line
     puts message_line
     break if message_line.chomp == ''
   end
+
+  document_path = "documents/#{first_header_line.split(' ')[1]}"
+  content = File.open(document_path, 'r') { |f| f.read }
 
   puts "Sending response..."
   new_socket.puts "HTTP/1.1 200 OK"
@@ -22,7 +26,7 @@ loop do
   new_socket.puts "Content-Type: text/html"
   new_socket.puts "Server: My HTTP Server"
   new_socket.puts "\r\n"
-  new_socket.puts "Hi there, greetings from the server!"
+  new_socket.puts content
   new_socket.close
   puts "Response sent and connection closed."
 end
