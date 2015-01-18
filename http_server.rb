@@ -20,18 +20,35 @@ loop do
   file_name = first_header_line.split(' ')[1]
   first_header_line.clear
 
-  if file_name != '/favicon.ico'
-    document_path = "documents#{file_name}"
+  suffix = file_name.slice(/\.(.*)/)
+  content_type = case suffix
+                 when '.html' then 'text/html'
+                 when '.css' then 'text/css'
+                 when '.jpg' then 'image/jpeg'
+                 end
+
+  document_path = (file_name == '/') ? 'documents/index.html' : "documents#{file_name}"
+
+  puts "Sending response..."
+
+  if File.exist?(document_path)
     content = File.open(document_path, 'r') { |f| f.read }
 
-    puts "Sending response..."
     new_socket.puts "HTTP/1.1 200 OK"
+    new_socket.puts "Date: #{Time.now.ctime}"
+    new_socket.puts "Content-Type: #{content_type}"
+    new_socket.puts "Server: My HTTP Server"
+    new_socket.puts "\r\n"
+    new_socket.puts content
+  else
+    new_socket.puts "HTTP/1.1 404 Not Found"
     new_socket.puts "Date: #{Time.now.ctime}"
     new_socket.puts "Content-Type: text/html"
     new_socket.puts "Server: My HTTP Server"
     new_socket.puts "\r\n"
-    new_socket.puts content
-    new_socket.close
-    puts "Response sent and connection closed."
+    new_socket.puts "<html><body><h1>404 Error - Page could not be found </h1></body></html>"
   end
+
+  new_socket.close
+  puts "Response sent and connection closed."
 end
