@@ -1,8 +1,6 @@
 class Surfing
   def call(env)
-    puts "Calling the app !!!!!!!!!!!!!!"
     document_name = env[:path].slice(/\/(.*)/)
-    document_path = "documents#{document_name}"
     if File.exists?(document_path)
       [200, {}, [File.read(document_path)]]
     else
