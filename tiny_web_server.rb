@@ -47,9 +47,9 @@ class TinyWebServer
 
   def write_headers(connection, headers)
     headers.each do |key, value|
-      connection.puts "#{key}, #{value}\r\n"
+      connection.puts "#{key} #{value}\r\n"
     end
-    connection.puts "Data: #{Time.now.ctime}"
+    connection.puts "Date: #{Time.now.ctime}"
     connection.puts "Server: Tiny Web Server"
     connection.puts "\r\n"
   end
