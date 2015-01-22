@@ -6,13 +6,11 @@ class ContentType
   def call(env)
     suffix = env[:path].slice(/\.(.*)/)
     status, headers, body = @app.call(env)
-    puts "#{headers}"
     if status == 200
       headers.merge!({"Content-Type" => content_type(suffix)})
     elsif status == 404
       headers.merge!({"text/html" => "text/html"})
     end
-    puts "#{headers}"
     [status, headers, body]
   end
 
