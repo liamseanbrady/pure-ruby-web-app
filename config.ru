@@ -1,3 +1,4 @@
 require 'rack'
+require './surfing_app'
 
-run Rack::File.new("documents")
+run Surfing.new
