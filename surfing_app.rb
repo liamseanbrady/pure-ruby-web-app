@@ -1,11 +1,14 @@
+require 'rack'
+require 'pry'
+
 class Surfing
   def call(env)
-    document_name = env[:path].slice(/\/(.*)/)
-    document_path = "documents#{document_name}"
-    if File.exists?(document_path)
-      [200, {}, [File.read(document_path)]]
+    if env['PATH_INFO'] == '/'
+      env['PATH_INFO'] = '/index.html'
+      env['REQUEST_PATH'] = '/index.html'
+      [302, {} , [File.read('documents/index.html')]]
     else
-      [404, {}, ["<html><body><h1>Can't find the page you requested </h1></body></html>"]]
+      Rack::File.new('documents').call(env)
     end
   end
 end
