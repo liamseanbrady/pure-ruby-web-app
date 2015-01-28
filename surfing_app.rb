@@ -26,7 +26,7 @@ class Surfing
     if env['PATH_INFO'] == '/'
       env['PATH_INFO'] = '/index.html'
       env['REQUEST_PATH'] = '/index.html'
-      template = File.read('templates/index.mustache')
+      template = File.read('templates/index_truncated.mustache')
       body = Mustache.render(template, DATA)
       [302, {}, [body]]
     else
