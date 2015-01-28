@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Surfing</title>
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/foundation.css">
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+  <body>
+    <div class="content">
+      <h1> Surf's Up! </h1>
+      <img src="/images/surfer.jpg" alt="Huge Wave" title="Surfer Catches Massive Wave">
+      <div class="wave-journal">
+        <h3> Wave Journal </h3>
+        <hr>
+        <ul class="no-bullet">
+          {{#journal}}
+          <li>
+            <h4>
+              <a href="#">{{title}}</a>
+            </h4>
+            <p>
+              {{body}}
+            </p>
+          </li>
+          {{/journal}}
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
+
