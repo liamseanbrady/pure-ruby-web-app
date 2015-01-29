@@ -3,7 +3,8 @@ require 'yaml'
 
 class Surfing
   def initialize
-    @journal_entries = journal_entries
+    persisted_data = File.open('data/journal_entries.yaml') { |f| f.read }
+    @journal_entries = YAML.load(persisted_data)
   end
 
   def call(env)
@@ -43,7 +44,7 @@ class Surfing
   end
 
   def journal_entries
-    YAML.load('data/journal_entries.yaml')
+    @journal_entries
   end
 end
 
