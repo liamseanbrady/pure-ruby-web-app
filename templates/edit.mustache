@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <title>Surfing</title>
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/foundation.css">
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+  <body>
+    {{#journal_entry}}
+      <form action="/update_journal_entry" method="post">
+        <label for="edit-title">Title</label>
+        <input name="title" type="text" id="entry-title" value="{{title}}">
+        <br/>
+        <label for="edit-content">Content</label>
+        <input name="content" type="text" id="entry-content" value="{{content}}">
+        <br/>
+        <button type="submit">Edit journal entry</button>
+      </form>
+    {{/journal_entry}}
+  </body>
+</html>
