@@ -12,17 +12,24 @@ class Surfing
     request = Rack::Request.new(env)
     if request.get? && request.path == '/'
       @journal_entries = @db.execute "SELECT * FROM journal_entries"
-      binding.pry
       @data = {'journal_entries' => journal_entries_truncated}
       render :index_truncated
     elsif request.get? && request.path == '/show_journal_entry'
-      entry =  @journal_entries.select {|entry| entry['id'].to_s == request.params['id']}
+      entry = @db.execute("SELECT * FROM journal_entries WHERE id = ?", request.params['id'])
       @data = {'journal_entry' => entry}
       render :show
+    elsif request.get? && request.path == '/edit_journal_entry'
+      entry = @db.execute("SELECT * FROM journal_entries WHERE id = ?", request.params['id'])
+      @data = {'journal_entry' => entry}
+      render :edit
     elsif request.post? && request.path == '/create_journal_entry'
-      new_entry = {id: @journal_entries.size + 1, title: request.params['title'], content: request.params['content']}
-      @journal_entries.unshift(new_entry)
+      index = @db.execute("SELECT COUNT(*) AS count FROM journal_entries").first['count'] + 1
+      @db.execute("INSERT INTO journal_entries (id, title, content) VALUES (?, ?, ?)", [index, request.params['title'], request.params['content']])
       redirect_to '/'
+    elsif request.post? && request.path == '/update_journal_entry'
+      index = request.referer.split('=').last
+      @db.execute("UPDATE journal_entries SET (title = ?, content = ? WHERE id = ?)", [request.params['title'], request.params['content'], index])
+      redirect_to "/show_journal_entry?id=#{index}"
     else
       Rack::File.new('documents').call(env)
     end
