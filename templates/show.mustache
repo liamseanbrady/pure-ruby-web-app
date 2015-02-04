@@ -16,8 +16,17 @@
       <p>
         {{content}}
       </p>
+      <p>
+        Created at: {{created_at}}
+      </p>
       <div>
         <a href="/edit_journal_entry?id={{id}}">Edit journal entry</a>
+      </div>
+      <div>
+        <form action="/delete_journal_entry" method="post">
+          <input name="id" type="hidden", value="{{id}}">
+          <input type="submit" value="Delete">
+        </form>
       </div>
       {{/journal_entry}}
     </div>
