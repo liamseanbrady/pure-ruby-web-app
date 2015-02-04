@@ -18,18 +18,23 @@ class Surfing
       entry = @db.execute("SELECT * FROM journal_entries WHERE id = ?", request.params['id'])
       @data = {'journal_entry' => entry}
       render :show
+    elsif request.post? && request.path == '/create_journal_entry'
+      time_now = friendly_time(Time.now)
+      id = (@db.execute("SELECT MAX(id) AS max FROM journal_entries").first['max'] + 1)
+      @db.execute("INSERT INTO journal_entries (id, title, content, created_at) VALUES (?, ?, ?, ?)", [id, request.params['title'], request.params['content'], time_now])
+      redirect_to '/'
     elsif request.get? && request.path == '/edit_journal_entry'
-      entry = @db.execute("SELECT * FROM journal_entries WHERE id = ?", request.params['id'])
+      entry = @db.execute("SELECT * FROM journal_entries WHERE id = ?", request.params['id']).first
       @data = {'journal_entry' => entry}
       render :edit
-    elsif request.post? && request.path == '/create_journal_entry'
-      index = @db.execute("SELECT COUNT(*) AS count FROM journal_entries").first['count'] + 1
-      @db.execute("INSERT INTO journal_entries (id, title, content) VALUES (?, ?, ?)", [index, request.params['title'], request.params['content']])
-      redirect_to '/'
     elsif request.post? && request.path == '/update_journal_entry'
-      index = request.referer.split('=').last
-      @db.execute("UPDATE journal_entries SET (title = ?, content = ? WHERE id = ?)", [request.params['title'], request.params['content'], index])
-      redirect_to "/show_journal_entry?id=#{index}"
+      id, title, content = request.params["id"], request.params["title"], request.params["content"]
+      @db.execute "UPDATE journal_entries SET title='#{title}', content='#{content}' WHERE id=#{id}"
+      redirect_to "/show_journal_entry?id=#{id}"
+    elsif request.post? && request.path == '/delete_journal_entry'
+      id = request.params["id"]
+      @db.execute "DELETE FROM journal_entries WHERE id=#{id}"
+      redirect_to '/'
     else
       Rack::File.new('documents').call(env)
     end
@@ -57,6 +62,10 @@ class Surfing
 
   def journal_entries
     @journal_entries
+  end
+
+  def friendly_time(time_obj)
+    time_obj.to_s.slice(0...-6)
   end
 end
 
