@@ -11,6 +11,9 @@ class Surfing
   def call(env)
     request = Rack::Request.new(env)
     if request.get? && request.path == '/'
+      user_id = request.cookies['user_id']
+      return [302, {"Location" => "/sign_in.html"}, []] unless user_id
+
       @journal_entries = @db.execute "SELECT * FROM journal_entries"
       @data = {'journal_entries' => journal_entries_truncated}
       render :index_truncated
@@ -35,6 +38,19 @@ class Surfing
       id = request.params["id"]
       @db.execute "DELETE FROM journal_entries WHERE id=#{id}"
       redirect_to '/'
+    elsif request.post? && request.path == '/create_user'
+      name, username, password, created_at = request.params['name'], request.params['username'], request.params['password'], friendly_time(Time.now)
+      @db.execute("INSERT INTO users (name, username, password, created_at) VALUES (?, ?, ?, ?)", [name, username, password, created_at])
+      redirect_to '/'
+    elsif request.post? && request.path == '/sign_in'
+      username, password = request.params['username'], request.params['password']
+      result = @db.execute("SELECT * FROM users WHERE username=? AND password=?", [username, password]).first
+      binding.pry
+      if result.any?
+        [302, {"Set-Cookie" => "user_id=#{result['id']}", "Location" => "/"}, []]
+      else
+        [401, {}, ['Access Denied']]
+      end
     else
       Rack::File.new('documents').call(env)
     end
