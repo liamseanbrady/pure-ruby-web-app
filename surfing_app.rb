@@ -1,5 +1,6 @@
 require 'mustache'
 require 'sqlite3'
+require 'base64'
 require 'pry'
 
 class Surfing
@@ -11,12 +12,13 @@ class Surfing
   def call(env)
     request = Rack::Request.new(env)
     if request.get? && request.path == '/'
-      user_id = request.cookies['user_id']
+      session = Marshal.load(Base64.decode64(request.cookies['app_session'])) if request.cookies['app_session']
+      user_id = session['user_id'] if session
       return [302, {"Location" => "/sign_in.html"}, []] unless user_id
 
       @journal_entries = @db.execute "SELECT * FROM journal_entries"
-      @data = {'journal_entries' => journal_entries_truncated}
-      render :index_truncated
+      @data = {'journal_entries' => journal_entries_truncated, 'logged_in?' => true}
+      render :index_with_signout
     elsif request.get? && request.path == '/show_journal_entry'
       entry = @db.execute("SELECT * FROM journal_entries WHERE id = ?", request.params['id'])
       @data = {'journal_entry' => entry}
@@ -46,10 +48,22 @@ class Surfing
       username, password = request.params['username'], request.params['password']
       result = @db.execute("SELECT * FROM users WHERE username=? AND password=?", [username, password]).first
       if result && result.any?
-        [302, {"Set-Cookie" => "user_id=#{result['id']}", "Location" => "/"}, []]
+        session = {'user_id' => result['id']}
+        response = Rack::Response.new
+        response.set_cookie('app_session', Base64.encode64(Marshal.dump(session)))
+        response.status = 302
+        response['location'] = '/'
+        response.finish
       else
         [401, {}, ['Access Denied']]
       end
+    elsif request.get? && request.path == '/sign_out'
+      session = {}
+      response = Rack::Response.new(env)
+      response.set_cookie('app_session', Base64.encode64(Marshal.dump(session)))
+      response.status = 302
+      response['location'] = '/'
+      response.finish
     else
       Rack::File.new('documents').call(env)
     end
