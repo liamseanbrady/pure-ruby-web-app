@@ -50,7 +50,7 @@ class Surfing
       if result && result.any?
         session = {'user_id' => result['id']}
         response = Rack::Response.new
-        response.set_cookie('app_session', Base64.encode64(Marshal.dump(session)))
+        response.set_cookie('app_session', {value: Base64.encode64(Marshal.dump(session)), expires: Time.now+60*60*24*30})
         response.status = 302
         response['location'] = '/'
         response.finish
