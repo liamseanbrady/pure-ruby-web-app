@@ -45,8 +45,7 @@ class Surfing
     elsif request.post? && request.path == '/sign_in'
       username, password = request.params['username'], request.params['password']
       result = @db.execute("SELECT * FROM users WHERE username=? AND password=?", [username, password]).first
-      binding.pry
-      if result.any?
+      if result && result.any?
         [302, {"Set-Cookie" => "user_id=#{result['id']}", "Location" => "/"}, []]
       else
         [401, {}, ['Access Denied']]
