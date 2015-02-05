@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Surfing</title>
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/foundation.css">
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+  <body>
+    <div class="content">
+      <div class="title">
+        <h1> Surf's Up! </h1>
+        {{#logged_in? }}
+          <a href="/sign_out"> Log out </a>
+        {{/logged_in?}}
+      </div>
+      <img src="images/surfer.jpg" alt="Huge Wave" title="Surfer Catches Massive Wave">
+      <div class="wave-journal">
+        <h3> Wave Journal </h3>
+        <hr>
+        <ul class="no-bullet">
+          {{#journal_entries }}
+            <li>
+              <h4><a href="#">{{title}}</a></h4>
+              <p>{{content}}</p>
+              <a href="/show_journal_entry?id={{id}}"> Read More.. </a>
+            </li>
+          {{/journal_entries}}
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
